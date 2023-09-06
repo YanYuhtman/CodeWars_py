@@ -5,16 +5,16 @@ import numpy as N
 import operator as O
 
 
-is_check=lambda b:any(map(lambda t:({'♞':t[2]==5,'♝':t[1]==1,'♟':t[2]==2,'♜':t[1]==0,'♛':(t[2]==1or t[1]==0)}[t[0]]),dict(map(lambda t:(t[1],t),sorted([[t[0],abs(not t[2]or t[1]/t[2]),t[1]**2+t[2]**2] for t in (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(sorted([[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' '])) if t[0]!='♔']))).values()))
+is_check=lambda b:any(map(lambda t:({'♞':t[2]==5,'♝':t[1]==1,'♟':t[2]==2,'♜':t[1]==0,'♛':(t[2]==1or t[1]==0)}[t[0]]),dict(map(lambda t:(t[1],t),sorted([[t[0],abs(t[1]/t[2] if t[2]!=0 else 0),t[1]**2+t[2]**2] for t in (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(sorted([[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' '])) if t[0]!='♔'],reverse=True))).values()))
 
-def is_check(b):
+def is_check0(b):
 
     # tmp = (filter(lambda v:v[2]!=' ',reduce(lambda a,b:a+b,[(list(map(lambda X:(Y[0],X[0],X[1]),enumerate(Y[1])))) for Y in enumerate(b)])))
     tmp = [[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' ']
     tmp = sorted(tmp)
     tmp = (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(tmp)
-    tmp = [[t[0],abs(not t[2]or t[1]/t[2]),t[1]**2+t[2]**2] for t in tmp if t[0]!='♔']
-    tmp = dict(map(lambda t:(t[1],t),sorted(tmp)))
+    tmp = [[t[0],abs(t[1]/t[2] if t[2]!=0 else 0),t[1]**2+t[2]**2] for t in tmp if t[0]!='♔']
+    tmp = dict(map(lambda t:(t[1],t),sorted(tmp,reverse=True)))
     tmp = map(lambda t:(
          {'♞':t[2]==5,
          '♝':t[1]==1,
@@ -146,6 +146,74 @@ class MyTestCase(unittest.TestCase):
                                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
                                    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]),
                          False,"Multiple no check 3")
+
+    def test_Knight_check3(self):
+        self.assertEqual(is_check([[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', '♔', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', '♞', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]),
+                         False, "Knight check")
+
+    # def test_Pawn_No_check(self):
+    #     self.assertEqual(is_check([[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    #                                [' ', ' ', ' ', ' ', ' ', ' ', '♜', ' '],
+    #                                [' ', ' ', ' ', ' ', ' ', '♝', ' ', ' '],
+    #                                [' ', ' ', ' ', ' ', ' ', '♟', ' ', ' '],
+    #                                [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    #                                [' ', ' ', ' ', ' ', '♔', ' ', ' ', ' '],
+    #                                [' ', ' ', ' ', ' ', ' ', '♟', ' ', '♜'],
+    #                                ['♜', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]),
+    #                      False, "Pawn no check")
+
+    def test_Queen_check2(self):
+        self.assertEqual(is_check([[' ', '♔', ' ', ' ', ' ', '♞', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', '♛', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', '♞'],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', '♞', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   ['♟', ' ', ' ', ' ', ' ', ' ', '♟', ' ']]),
+                         True, "Queen no check")
+
+    def test_Rook_check4(self):
+        self.assertEqual(is_check([[' ', ' ', ' ', ' ', '♛', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   ['♔', ' ', ' ', ' ', ' ', '♜', ' ', '♞'],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', '♞', ' ']]),
+                         True, "Rook no check")
+
+    def test_4(self):
+        self.assertEqual(is_check([[' ', ' ', ' ', ' ', ' ', ' ', ' ', '♔'],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', '♝'],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   ['♜', '♝', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', '♝', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', '♜', ' ', ' ', '♟']]),
+                         False, "No check ")
+    def test_Rook_check4(self):
+        self.assertEqual(is_check([[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', '♝', ' ', '♞', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', '♔'],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', '♜', ' ', ' ', ' ', ' ', ' ', '♜'],
+                                   [' ', ' ', ' ', ' ', '♞', '♜', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+                                   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]),
+                         True, "Rook check 4")
+
+
+
 
 
 if __name__ == '__main__':
