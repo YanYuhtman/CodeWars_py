@@ -1,42 +1,30 @@
 import unittest
-import itertools as I
-import functools as F
+from itertools import *
+from functools import *
 import numpy as N
 import operator as O
 
 
-# is_check = lambda board: True
-def is_check(board):
-    # tmp = None
-    # mL = list()
-    # for y,s in enumerate(board):
-    #    for x,s in enumerate(s):
-    #         mL += [[y,x,s]]
-    #
-    # tmp = (list(map(lambda y : list(map(lambda x: [y[0],x[0],x[1]],enumerate(y[1]))), enumerate(board))))
-    # tmp = list(map(lambda y: list(map(lambda x: [y[0],x[0],x[1]],enumerate(y[1]))), enumerate(board)))
+# is_check=lambda b:any(map(lambda t:({'♞':t[1]==5,'♝':t[0]==1,'♟':t[1]==2,'♜':t[0]==0,'♛':(t[1]==1 or t[0]==0)}[t[2]]),dict(map(lambda t:(t[0],t),sorted(dropwhile(lambda t:t[2]=='♔',map(lambda t:(abs(t[0]/t[1] if t[1] else 0),t[0]**2+t[1]**2,t[2]),(lambda b:map(lambda t:(t[0]-b[0][0],t[1]-b[0][1],t[2]),b))(sorted([[x,y,b[x][y]]for x in range(0,8)for y in range(0,8)if b[x][y]!=' '],key=lambda x:x[2])))),key=lambda t:t[1],reverse=True))).values()))
 
-    tmp = (filter(lambda v:v[2]!=' ',F.reduce(lambda a,b:a+b,[(list(map(lambda X:(Y[0],X[0],X[1]),enumerate(Y[1])))) for Y in enumerate(board)])))
-    tmp = sorted(tmp,key=lambda x:x[2])
-    tmp = list(map(lambda t:(t[0]-tmp[0][0],t[1]-tmp[0][1],t[2]),tmp))
-    tmp = list(map(lambda t:(abs(int(t[0]/t[1]) if t[1] else 0),t[0]**2+t[1]**2,t[2]),tmp))
-    # tmp = F.reduce(lambda a,b: l + b,tmp)
-    tmp = N.unique(sorted(tmp,key=lambda x:x[1]),axis=1)
-    tmp = list(map(lambda t:(
-         {'♞':t[1]=='5',
-         '♝':t[0]=='1',
-         '♟':t[1]=='2',
-         '♜':t[0]=='0',
-         '♛':(t[1]=='1' or t[0]=='0')
-         }
-        .get(t[2])),tmp))
+def is_check(b):
+
+    # tmp = (filter(lambda v:v[2]!=' ',reduce(lambda a,b:a+b,[(list(map(lambda X:(Y[0],X[0],X[1]),enumerate(Y[1])))) for Y in enumerate(b)])))
+    tmp = [[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' ']
+    tmp = sorted(tmp)
+    tmp = (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(tmp)
+    tmp = map(lambda t:(t[0],abs(not t[2]or t[1]/t[2]),t[1]**2+t[2]**2),tmp)
+    # tmp = list(tmp).pop()
+    tmp = dropwhile(lambda t:t[0]=='♔',tmp)
+    tmp = dict(map(lambda t:(t[1],t),sorted(tmp)))
+    tmp = map(lambda t:(
+         {'♞':t[2]==5,
+         '♝':t[1]==1,
+         '♟':t[2]==2,
+         '♜':t[1]==0,
+         '♛':(t[2]==1or t[1]==0)
+         }[t[0]]),tmp.values())
     return any(tmp)
-    # tmp = [((list(Y[1])) for X in enumerate(Y[1])) for Y in enumerate(board)]
-
-
-    tmp = list(map(lambda by:
-               list(map(lambda bx:(bx[1],by[0],bx[0]),enumerate(by[1]))),enumerate(board)))
-    True
 class MyTestCase(unittest.TestCase):
     is_check = lambda board: False
 
