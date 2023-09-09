@@ -1,13 +1,16 @@
+import operator
 import unittest
 from itertools import *
 from functools import *
+from operator import *
 import numpy as N
 import operator as O
 
 
-is_check=lambda b:any(map(lambda t:({'♞':t[2]==5,'♝':t[1]==1,'♟':t[2]==2,'♜':t[1]==0,'♛':(t[2]==1or t[1]==0)}[t[0]]),dict(map(lambda t:(t[1],t),sorted([[t[0],abs(t[1]/t[2] if t[2]!=0 else 0),t[1]**2+t[2]**2] for t in (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(sorted([[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' '])) if t[0]!='♔'],reverse=True))).values()))
+# is_check=lambda b:any(map(lambda t:({'♞':t[2]==5,'♝':t[1]==1,'♟':t[2]==2,'♜':t[1]==0,'♛':(t[2]==1or t[1]==0)}[t[0]]),dict(map(lambda t:(t[1],t),sorted([[t[0],abs(t[1]/t[2] if t[2]!=0 else 0),t[1]**2+t[2]**2] for t in (lambda b:map(lambda t:(t[0],t[1]-b[0][1],t[2]-b[0][2]),b))(sorted([[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' '])) if t[0]!='♔'],reverse=True))).values()))
 
-def is_check0(b):
+
+def is_check(b):
 
     # tmp = (filter(lambda v:v[2]!=' ',reduce(lambda a,b:a+b,[(list(map(lambda X:(Y[0],X[0],X[1]),enumerate(Y[1])))) for Y in enumerate(b)])))
     tmp = [[b[x][y],x,y]for x in range(0,8)for y in range(0,8)if b[x][y]!=' ']
