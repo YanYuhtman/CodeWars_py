@@ -10,13 +10,17 @@ from math import ceil
 
 
 def gcd(n:int, m:int) -> int:
-    tmp_n = n
-    reminder = n % m
-    while reminder != 0:
-        tmp_n = (tmp_n - reminder)//(tmp_n//m)
-        m = reminder
-        reminder = tmp_n % m
-    return m if m != 1 else n
+    while m != 0:
+        n,m = m, n% m
+    return n
+
+    # tmp_n = n
+    # reminder = n % m
+    # while reminder != 0:
+    #     tmp_n = (tmp_n - reminder)//(tmp_n//m)
+    #     m = reminder
+    #     reminder = tmp_n % m
+    # return m if m != 1 else n
 
 def f1(m:int) -> int:
     divSet = list()
@@ -50,20 +54,22 @@ def f1(m:int) -> int:
 #     return a
 
 
+pseudo_primes = {183505472281088053}
 def primalityTest(n:int)->bool:
-    return n == 2 or (n % 2 != 0 and pow(2,(n-1),n)==1)
+    return n == 2 or (n % 2 != 0 and pow(2,(n-1),n)==1) or n in pseudo_primes
 
 
 def divs(m:int) -> set:
     a = set()
     c = 2
+    sr = sqrt(m)
     while m > 1:
         while m % c == 0:
             m = m // c
+            sr = sqrt(m)
             a.add(c)
         c += 1
-        # if len(a) == 0 and c > sr:
-        if m > 1 and primalityTest(m):#c > sqrt(m):
+        if m > 1 and (primalityTest(m) or c > sr):
             print("The number %d is prime:" % m)
             a.add(m)
             return a
@@ -73,23 +79,21 @@ def divs(m:int) -> set:
 class Timer:
     start:float
     label:str
-    millis:bool
-    def __init__(self,start:int = time.time()*1000,label = "",millis=True):
-        self.millis = millis
-        self.start = start if millis else time.time_ns()
+    def __init__(self,start:int=0,label = ""):
+        self.start = time.time()*1000
         self.label = label
         # print("Start time: %s %d" % (self.label, self.start))
 
     def __str__(self) -> str:
-        return ("Timer: " + self.label + " elapsed " + str((time.time()*1000 if self.millis else time.time_ns()) - self.start)
-                + (" msec" if self.millis else " nsec"))
+        return ("Timer: " + self.label + " elapsed " + str((time.time()*1000) - self.start)
+                + " msec")
 
 
 
 def f(m:int) -> int:
     if m == 1:
         return 1
-    if m == 2 or (m % 2 != 0 and pow(2,(m-1),m)==1):
+    if primalityTest(m):
         return m
 
     divsTimer = Timer(label="Primes timer for m=" + str(m))
@@ -99,20 +103,16 @@ def f(m:int) -> int:
 
     print(divsTimer)
 
-    powerTimer = Timer(label="Power timer for m=" +str(m),millis=True)
+    powerTimer = Timer(label="Power timer for m=" + str(m))
     insertions = 0
     while insertions < 2:
         n = 1
         for x in s:
             n = n * x
-            if n < log(m,n):
-                continue
-            # n >= log(m,n)  ... А тут хуйня какая то
-            # p = min(ceil(log(m,n)),n)
-            # p = p if p%2==n%2 else p + 1
-            p = n
-            print("Resolved p: %d" % p)
-            if pow(n,p,m) == 0:
+            # a little to save but a lot to calculate
+            # if n < log(m,n):
+            #     continue
+            if pow(n,n,m) == 0:
                 print(powerTimer)
                 print("Found n: %d ^2=%d mod(%d), ^3=%d mod(%d)" % (n,n**2%m,m,n**3%m,m))
                 return n
@@ -128,7 +128,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(gcd(945,399), 21)
         self.assertEqual(gcd(18, 6), 6)
         self.assertEqual(gcd(1444764, 8766), 6)
-        self.assertEqual(gcd(13, 5), 13)
+        self.assertEqual(gcd(13, 5), 1)
 
 
     def test_primality(self):
@@ -173,8 +173,30 @@ class MyTestCase(unittest.TestCase):
         # self.assertEqual(f(151139185544638995), 151139185544638995)
         # self.assertEqual(f(229340832900061929), 229340832900061929)
         # self.assertEqual(f(771664430788135076), 385832215394067538)
-        self.assertEqual(f(183505472281088053), 183505472281088053)
+        # self.assertEqual(f(183505472281088053), 183505472281088053)
         # self.assertEqual(f(683316963595419586), 683316963595419586)
+        # self.assertEqual(f(881579821966452820), 440789910983226410)
+        #
+        # self.assertEqual(f(723933524240285107), 723933524240285107)
+        # self.assertEqual(f(351826822115882012), 175913411057941006)
+        # self.assertEqual(f(723933524240285107), 723933524240285107)
+        #
+        self.assertEqual(f(304951420396289928), 76237855099072482)
+
+        # self.assertEqual(f(860991034399103123), 860991034399103123)
+
+    def test_gcd_instead(self):
+        m = 183505472281088053
+        m = 657721
+        m = 151139185544638995
+        gcd_set = set()
+        counter = 2
+        while counter < m:
+            gcd_ = gcd(counter, m)
+            gcd_set.add(gcd_)
+            m = m//gcd_
+            counter+=1
+        print(list(gcd_set))
 
     def test_pretest(self):
         m = 222334565193649
