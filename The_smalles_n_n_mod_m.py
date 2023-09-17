@@ -1,8 +1,7 @@
 import time
 import unittest
 from math import sqrt
-from math import log
-from math import ceil
+from math import floor
 
 
 #https://www.codewars.com/kata/638b4205f418c4ab857f2692
@@ -14,34 +13,29 @@ def gcd(n:int, m:int) -> int:
         n,m = m, n% m
     return n
 
-    # tmp_n = n
-    # reminder = n % m
-    # while reminder != 0:
-    #     tmp_n = (tmp_n - reminder)//(tmp_n//m)
-    #     m = reminder
-    #     reminder = tmp_n % m
-    # return m if m != 1 else n
+def pollard_algorithm(c:int, n:int)->int:
+    if primalityTest(n):
+        return n
+    (x, y, d) = c, c, 1
+    p = lambda x: x**2 + 1
 
-def f1(m:int) -> int:
-    divSet = list()
-    i = 1
-    while i < m:
-        i += 1
-        if i < ceil(log(m,i)):
-            continue
-        g = gcd(m, i)
-        if g != m and g > i:
-            i = g
-        divSet.append((m,i,g))
-
-
-    return False
+    r = 25
+    while True:
+        prod = 1
+        for i in range(1,r):
+            x = p(x)%n
+            y = p(p(y))%n
+            prod = (prod * abs(y - x))%n
+        d = gcd(prod,n)
+        if d == n:
+            r = floor(sqrt(r))
+        elif d != 1:
+          return d
 
 
 _primesSet = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317, 331, 337, 341, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 561, 563, 569, 571, 577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 645, 647, 653, 659, 661, 673, 677, 683, 691, 701, 709, 719, 727, 733, 739, 743, 751, 757, 761, 769, 773, 787, 797, 809, 811, 821, 823, 827, 829, 839, 853, 857, 859, 863, 877, 881, 883, 887, 907, 911, 919, 929, 937, 941, 947, 953, 967, 971, 977, 983, 991, 997, 1009, 1013, 1019, 1021, 1031, 1033, 1039, 1049, 1051, 1061, 1063, 1069, 1087, 1091, 1093, 1097, 1103, 1105, 1109, 1117, 1123, 1129, 1151, 1153, 1163, 1171, 1181, 1187, 1193, 1201, 1213, 1217, 1223, 1229, 1231, 1237, 1249, 1259, 1277, 1279, 1283, 1289, 1291, 1297, 1301, 1303, 1307, 1319, 1321, 1327, 1361, 1367, 1373, 1381, 1387, 1399, 1409, 1423, 1427, 1429, 1433, 1439, 1447, 1451, 1453, 1459, 1471, 1481, 1483, 1487, 1489, 1493, 1499, 1511, 1523, 1531, 1543, 1549, 1553, 1559, 1567, 1571, 1579, 1583, 1597, 1601, 1607, 1609, 1613, 1619, 1621, 1627, 1637, 1657, 1663, 1667, 1669, 1693, 1697, 1699, 1709, 1721, 1723, 1729, 1733, 1741, 1747, 1753, 1759, 1777, 1783, 1787, 1789, 1801, 1811, 1823, 1831, 1847, 1861, 1867, 1871, 1873, 1877, 1879, 1889, 1901, 1905, 1907, 1913, 1931, 1933, 1949, 1951, 1973, 1979, 1987, 1993, 1997, 1999, 2003, 2011, 2017, 2027, 2029, 2039, 2047, 2053, 2063, 2069, 2081, 2083, 2087, 2089, 2099, 2111, 2113, 2129, 2131, 2137, 2141, 2143, 2153, 2161, 2179, 2203, 2207, 2213, 2221, 2237, 2239, 2243, 2251, 2267, 2269, 2273, 2281, 2287, 2293, 2297, 2309, 2311, 2333, 2339, 2341, 2347, 2351, 2357, 2371, 2377, 2381, 2383, 2389, 2393, 2399, 2411, 2417, 2423, 2437, 2441, 2447, 2459, 2465, 2467, 2473, 2477, 2503, 2521, 2531, 2539, 2543, 2549, 2551, 2557, 2579, 2591, 2593, 2609, 2617, 2621, 2633, 2647, 2657, 2659, 2663, 2671, 2677, 2683, 2687, 2689, 2693, 2699, 2701, 2707, 2711, 2713, 2719, 2729, 2731, 2741, 2749, 2753, 2767, 2777, 2789, 2791, 2797, 2801, 2803, 2819, 2821, 2833, 2837, 2843, 2851, 2857, 2861, 2879, 2887, 2897, 2903, 2909, 2917, 2927, 2939, 2953, 2957, 2963, 2969, 2971, 2999, 3001, 3011, 3019, 3023, 3037, 3041, 3049, 3061, 3067, 3079, 3083, 3089, 3109, 3119, 3121, 3137, 3163, 3167, 3169, 3181, 3187, 3191, 3203, 3209, 3217, 3221, 3229, 3251, 3253, 3257, 3259, 3271, 3277, 3299, 3301, 3307, 3313, 3319, 3323, 3329, 3331, 3343, 3347, 3359, 3361, 3371, 3373, 3389, 3391, 3407, 3413, 3433, 3449, 3457, 3461, 3463, 3467, 3469, 3491}
-
 def primalityTest(n:int)->bool:
-    return n == 2 or (n % 2 != 0 and pow(2,(n-1),n)==1)
+    return n < 4 or (n % 2 != 0 and pow(2,(n-1),n)==1)
 
 class PrimeDict(dict):
     def add_update(self, p: int):
@@ -63,21 +57,24 @@ class PrimeDict(dict):
 def mults(m:int) -> list:
     d = PrimeDict()
     c = 2
-    sr = sqrt(m)
     primesList = sorted(list(_primesSet))
     lastPrimeIndex = 0
+    sr = sqrt(m)
     while m > 1:
         while m % c == 0:
             m = m // c
             sr = sqrt(m)
             d.add_update(c)
-            _primesSet.add(c)
-        c = primesList[lastPrimeIndex] if lastPrimeIndex < len(primesList) else c + m % c
-        lastPrimeIndex+=1
-        if m > 1 and (primalityTest(m)): #or c > sr):
+
+        if lastPrimeIndex < len(primesList):
+            c = primesList[lastPrimeIndex]
+            lastPrimeIndex += 1
+        else:
+            c = pollard_algorithm(2,m)
+
+        if m > 1 and (primalityTest(m) or c > sr):
             print("The number %d is prime:" % m)
             d.add_update(m)
-            _primesSet.add(m)
             return d.toMultList()
     return d.toMultList()
 
@@ -103,10 +100,9 @@ def f(m:int) -> int:
         return m
 
     divsTimer = Timer(label="Primes timer for m=" + str(m))
-    # s = sorted(list(divs(m)))
     s = mults(m)
 
-    print("Primes: [" + ", ".join(map(str,s)) + "]")
+    print("Divisors: [" + ", ".join(map(str,s)) + "]")
 
     print(divsTimer)
 
@@ -118,20 +114,51 @@ def f(m:int) -> int:
             return n
 
 
+fibSequence = [0, 1]
+def fib(n:int):
+    if n in fibSequence:
+        return n
+    lastN = len(fibSequence)
+    while lastN <= n:
+        fibSequence.append(fibSequence[lastN - 2] + fibSequence[lastN - 1])
+        lastN += 1
+    return fibSequence[lastN - 1]
+
+
 
 class MyTestCase(unittest.TestCase):
 
-    # def test_generate_primes(self):
-    #     primes = [2,3,5,7,11]
-    #
-    #     while len(primes) < 500:
-    #         lastPrime = primes[len(primes)-1]
-    #         while True:
-    #             lastPrime += 1
-    #             if primalityTest(lastPrime):
-    #                 primes.append(lastPrime)
-    #                 break
-    #     end = True
+    def test_fib(self):
+        self.assertEqual(0, fib(0))
+        self.assertEqual(1, fib(1))
+        self.assertEqual(1, fib(2))
+        self.assertEqual(2, fib(3))
+        self.assertEqual(233,fib(13))
+        self.assertEqual(1597, fib(17))
+
+    def _test_generate_primes(self):
+        primes = [2,3,5,7,11]
+
+        while len(primes) < 10000:
+            lastPrime = primes[len(primes)-1]
+            while True:
+                lastPrime += 1
+                if primalityTest(lastPrime):
+                    primes.append(lastPrime)
+                    break
+        print(primes)
+        end = True
+
+
+    def test_pollard(self):
+        self.assertEqual(83, pollard_algorithm(2,8051))
+        self.assertEqual(101, pollard_algorithm(2, 10403))
+        self.assertEqual(83, pollard_algorithm(97, 8051))
+        self.assertEqual(101, pollard_algorithm(103, 10403))
+        self.assertEqual(533411731, pollard_algorithm(2, 811 ** 20))
+        self.assertEqual(3491, pollard_algorithm(2, 3491 * 3457))
+        self.assertEqual(243431, pollard_algorithm(2, 27342963703398620295769))
+        self.assertEqual(3210244853, pollard_algorithm(2, 3210244853))
 
 
     def test_gcd(self):
@@ -155,23 +182,21 @@ class MyTestCase(unittest.TestCase):
 
 
     def test_s(self):
-        # self.assertEqual(f(169), 13)
+        self.assertEqual(f(169), 13)
         self.assertEqual(f(666), 222)
-        # self.assertEqual(f(1), 1)
-        # self.assertEqual(f(2), 2)
-        # self.assertEqual(f(8), 4)
-        # self.assertEqual(f(81), 6)
-        # self.assertEqual(f(384), 12)
-        # self.assertEqual(f(13), 13)
-        # self.assertEqual(f(420), 210)
-        # self.assertEqual(f(1234567890), 411522630)
+        self.assertEqual(f(1), 1)
+        self.assertEqual(f(2), 2)
+        self.assertEqual(f(8), 4)
+        self.assertEqual(f(81), 6)
+        self.assertEqual(f(384), 12)
+        self.assertEqual(f(13), 13)
+        self.assertEqual(f(420), 210)
+        self.assertEqual(f(1234567890), 411522630)
 
     def test_hard(self):
         self.assertEqual(f(811), 811)
         self.assertEqual(f(657721), 811)
         self.assertEqual(f(533411731), 811)
-
-
         self.assertEqual(f(432596913841), 811)
         self.assertEqual(f(350836097125051), 811)
         self.assertEqual(f(284528074768416361), 811)
@@ -189,11 +214,11 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(f(183505472281088053), 183505472281088053)
         self.assertEqual(f(683316963595419586), 683316963595419586)
         self.assertEqual(f(881579821966452820), 440789910983226410)
-
+        #
         self.assertEqual(f(723933524240285107), 723933524240285107)
         self.assertEqual(f(351826822115882012), 175913411057941006)
         self.assertEqual(f(723933524240285107), 723933524240285107)
-
+        #
         self.assertEqual(f(304951420396289928), 76237855099072482)
 
         self.assertEqual(f(860991034399103123), 860991034399103123)
@@ -210,6 +235,12 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(f(2920204716564098460518647), 4245728505263363)
         self.assertEqual(f(4468042708387628059511587), 5765215661459713)
         self.assertEqual(f(120384799421749033099451), 1033479241040881)
+        self.assertEqual(f(27342963703398620295769 ), 165357079387)
+
+        self.assertEqual(f(18242210585331032369689), 135063727867)
+        self.assertEqual(f(6949440121510290228049), 83363302007)
+
+
 
     def test_pretest(self):
         m = 222334565193649
@@ -229,6 +260,24 @@ class MyTestCase(unittest.TestCase):
 
             print("n^n=%d n=%d m=%d" % (n**n,n,m))
             print("mults: "+ "".join(map(str, [[x] for x in range(2,m) if m % x == 0])))
+
+    def test_divisions(self):
+        v = 384#2 * 5*7*13*11#666 #420
+        moduloOf = v
+        x:int = 3
+        m = moduloOf
+        while m != 0 and x < moduloOf:
+            m = pow(x, x, moduloOf)
+            x += 1#int (sqrt(m)) #x + m if x + m < moduloOf else x - m
+            print("Modulo of: %d  m = %d  x = %d" % (x**2//moduloOf,m, x))
+
+    def test_multiplication(self):
+        value = pow(12,24)
+        print(value)
+        for x in range(2,12):
+            print(value - pow(384,x))
+            # if pow(420,x) == value:
+
 
 if __name__ == '__main__':
     unittest.main()
